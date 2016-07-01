@@ -181,6 +181,9 @@ def installpartitions() {
     'away':'DSC Away Panel',
     'simplestay':'DSC Simple Stay Panel',
     'simpleaway':'DSC Simple Away Panel',
+    'keyfire':'DSC Fire Key',
+    'keypanic':'DSC Panic Key',
+    'keyaux':'DSC Aux Key',
   ]
 
   log.debug "children are ${children}"
