@@ -5,6 +5,10 @@
  *  Original Author: Matt Martz <matt.martz@gmail.com>
  *  Modified to be a motion device: Kent Holloway <drizit@gmail.com>
  *  Date: 2016-02-27
+ *
+ *  Modified: David de Gruyl <david.degruyl@gmail.com>
+ *  Add Tamper Alert
+ *  Date: 2016-06-30
  */
 
 // for the UI
@@ -14,6 +18,7 @@ metadata {
     capability "Water Sensor"
     capability "Sensor"
     capability "Momentary"
+    capability "Tamper Alert"
 
     // Add commands as needed
     command "zone"
@@ -37,19 +42,23 @@ metadata {
         attributeState "fault", label: 'Fault', icon: "st.security.alarm.alarm"
       }
     }
-    standardTile("bypass", "device.bypass", width: 3, height: 2, title: "Bypass Status", decoration:"flat"){
+    standardTile("bypass", "device.bypass", width: 2, height: 2, title: "Bypass Status", decoration:"flat"){
       state "off", label: 'Enabled', icon: "st.security.alarm.on"
       state "on", label: 'Bypassed', icon: "st.security.alarm.off"
     }
-    standardTile("bypassbutton", "capability.momentary", width: 3, height: 2, title: "Bypass Button", decoration: "flat"){
+    standardTile("bypassbutton", "capability.momentary", width: 2, height: 2, title: "Bypass Button", decoration: "flat"){
       state "bypass", label: 'Bypass', action: "bypass", icon: "st.locks.lock.unlocked"
     }
+    valueTile("tamperAlert", "device.tamper", width: 2, height: 2) {
+	  state "clear", label:"Tamper Clear", backgroundColor: "#CCCCCC"
+	  state "detected", label:"Tamper Detected", backgroundColor: "#FF0000"
+	}
 
     // This tile will be the tile that is displayed on the Hub page.
     main "zone"
 
     // These tiles will be displayed when clicked on the device, in the order listed here.
-    details(["zone", "bypass", "bypassbutton"])
+    details(["zone", "bypass", "bypassbutton","tamperAlert"])
   }
 }
 
@@ -70,7 +79,13 @@ def zone(String state) {
 
   def troubleList = ['fault','tamper','restore']
   def bypassList = ['on','off']
-
+  
+  if (state == "tamper") {
+    sendEvent(getTamperEventMap("detected"))
+  } else {
+    sendEvent(getTamperEventMap("clear"))
+  }
+  
   if (troubleList.contains(state)) {
     // Send final event
     sendEvent (name: "trouble", value: "${state}")
@@ -88,4 +103,21 @@ def zone(String state) {
     // Send final event
     sendEvent (name: "water", value: "${newState}")
   }
+}
+
+private clearTamperDetected() {	
+	if (device.currentValue("tamper") != "clear") {
+		logDebug "Resetting Tamper"
+		sendEvent(getTamperEventMap("clear"))			
+	}
+}
+
+def getTamperEventMap(val) {
+	[
+		name: "tamper", 
+		value: val, 
+		isStateChange: true, 
+		displayed: (val == "detected"),
+		descriptionText: "Tamper is $val"
+	]
 }
