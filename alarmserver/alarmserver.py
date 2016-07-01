@@ -112,7 +112,11 @@ class AlarmServerConfig():
             away=self.read_config_var('partition'+str(i), 'away', False, 'str', True)
             simplestay=self.read_config_var('partition'+str(i), 'simplestay', False, 'str', True)
             simpleaway=self.read_config_var('partition'+str(i), 'simpleaway', False, 'str', True)
-            if stay!=False or away!=False or simplestay!=False or simpleaway!=False:
+            keyfire=self.read_config_var('partition'+str(i), 'keyfire', False, 'str', True)
+            keyaux=self.read_config_var('partition'+str(i), 'keyaux', False, 'str', True)
+            keypanic=self.read_config_var('partition'+str(i), 'keypanic', False, 'str', True)
+
+            if stay!=False or away!=False or simplestay!=False or simpleaway!=False or keyfire!=False or keypanic!=False or keyaux!=False:
                 self.PARTITIONS[i] = {}
                 if away!=False:
                     self.PARTITIONS[i]['away']=away
@@ -122,6 +126,12 @@ class AlarmServerConfig():
                     self.PARTITIONS[i]['simpleaway']=simpleaway
                 if simplestay!=False:
                     self.PARTITIONS[i]['simplestay']=simplestay
+                if keyfire!=False:
+                    self.PARTITIONS[i]['keyfire']=keyfire
+                if keypanic!=False:
+                    self.PARTITIONS[i]['keypanic']=keypanic
+                if keyaux!=False:
+                    self.PARTITIONS[i]['keyaux']=keyaux
 
         self.ZONES={}
         self.ZONENAMES={}
